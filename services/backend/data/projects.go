@@ -18,24 +18,24 @@ func NewProjectsPostgres(db *sql.DB) *ProjectsPostgres {
 }
 
 type Project struct {
-	Id int64 `json:"id"`
-	Name string `json:"name"`
+	Id          string `json:"id"`
+	Name        string `json:"name"`
 	Description string `json:"description"`
 }
 
-func (m ProjectsPostgres) CreateProject(name, description string) (*Project, error) {
+func (m ProjectsPostgres) CreateProject(name, description, userId string) (*Project, error) {
 	query := `
-		INSERT INTO projects (name, description)
-		VALUES ($1, $2)
+		INSERT INTO projects (name, description, user_id)
+		VALUES ($1, $2, $3)
 		RETURNING id
 	`
 
-	args := []any{name, description}
+	args := []any{name, description, userId}
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
 	project := &Project{
-		Name: name,
+		Name:        name,
 		Description: description,
 	}
 
