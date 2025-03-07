@@ -15,7 +15,6 @@ import (
 
 func (rt *Router) oauthLogin(w http.ResponseWriter, r *http.Request) {
 	source := r.PathValue("source")
-	println(source)
 	oauthState := generateStateOauthCookie(w, source)
 
 	u := rt.oauthConfigs[source].AuthCodeURL(oauthState)
@@ -24,7 +23,6 @@ func (rt *Router) oauthLogin(w http.ResponseWriter, r *http.Request) {
 
 func (rt *Router) oauthCallback(w http.ResponseWriter, r *http.Request) {
 	oauthState, err := r.Cookie("oauthstate")
-	println(err)
 
 	if r.FormValue("state") != oauthState.Value {
 		slog.Error("invalid oauth state")

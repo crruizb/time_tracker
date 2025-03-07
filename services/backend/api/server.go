@@ -9,6 +9,7 @@ import (
 
 type ProjectsStore interface {
 	CreateProject(name, description, userId string) (*data.Project, error)
+	GetProjects(userId string) ([]data.ProjectTask, error)
 }
 
 type TasksStore interface {
@@ -111,5 +112,12 @@ func (s *Router) stopTask(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Router) projectReport(w http.ResponseWriter, r *http.Request) {
+	user := r.Context().Value(ContextUser).(*data.User)
+	projects, err := s.ps.GetProjects(user.Id)
+	if err != nil {
+		ServerErrorResponse(w, r, err)
+		return
+	}
 
+	WriteJSON(w, http.StatusOK, envelope{"report": projects}, nil)
 }

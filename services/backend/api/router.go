@@ -21,11 +21,11 @@ func NewRouter(oauthConfigs map[string]*oauth2.Config, ps ProjectsStore, ts Task
 		ts:           ts,
 	}
 
-	rt.HandleFunc("POST /api/project", rt.createProject)
-	rt.HandleFunc("POST /api/project/{projectId}/task", rt.createTask)
-	rt.HandleFunc("POST /api/task/{taskId}/start", rt.startTask)
-	rt.HandleFunc("POST /api/task/{taskId}/stop", rt.stopTask)
-	rt.HandleFunc("GET /api/project/{projectId}", rt.projectReport)
+	rt.HandleFunc("POST /api/projects", rt.createProject)
+	rt.HandleFunc("POST /api/projects/{projectId}/tasks", rt.createTask)
+	rt.HandleFunc("POST /api/tasks/{taskId}/start", rt.startTask)
+	rt.HandleFunc("POST /api/tasks/{taskId}/stop", rt.stopTask)
+	rt.HandleFunc("GET /api/projects", rt.projectReport)
 
 	rt.HandleFunc("GET /auth/login/{source}", rt.oauthLogin)
 	rt.HandleFunc("GET /auth/callback", rt.oauthCallback)
