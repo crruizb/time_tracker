@@ -24,8 +24,10 @@ type Project struct {
 }
 
 type ProjectTask struct {
-	Project Project         `json:"project"`
-	Tasks   []TaskOfProject `json:"tasks"`
+	Id          string          `json:"id"`
+	Name        string          `json:"name"`
+	Description string          `json:"description"`
+	Tasks       []TaskOfProject `json:"tasks"`
 }
 
 type TaskOfProject struct {
@@ -111,12 +113,10 @@ func (m ProjectsPostgres) GetProjects(userId string) ([]ProjectTask, error) {
 
 		if !ok {
 			projectTask := ProjectTask{
-				Project: Project{
-					Id:          id,
-					Name:        name,
-					Description: description,
-				},
-				Tasks: []TaskOfProject{},
+				Id:          id,
+				Name:        name,
+				Description: description,
+				Tasks:       []TaskOfProject{},
 			}
 			if task.Id != nil {
 				projectTask.Tasks = append(projectTask.Tasks, task)

@@ -27,7 +27,7 @@ func NewRouter(oauthConfigs map[string]*oauth2.Config, ps ProjectsStore, ts Task
 	rt.HandleFunc("POST /api/tasks/{taskId}/stop", rt.stopTask)
 	rt.HandleFunc("GET /api/projects", rt.projectReport)
 
-	rt.HandleFunc("GET /auth/login/{source}", rt.oauthLogin)
+	rt.HandleFunc("GET /auth/{source}/login", rt.oauthLogin)
 	rt.HandleFunc("GET /auth/callback", rt.oauthCallback)
 
 	return rt

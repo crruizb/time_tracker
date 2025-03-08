@@ -67,8 +67,9 @@ func main() {
 
 	rt := api.NewRouter(oauthConfigs, ps, ts)
 
-	excludePrefix := []string{"/auth/login", "/auth/callback"}
+	excludePrefix := []string{"/auth/github/login", "/auth/callback"}
 	mw := middleware.With(
+		middleware.CorsMiddleware(),
 		middleware.Auth(us, excludePrefix),
 	)
 

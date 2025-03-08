@@ -113,6 +113,7 @@ func (s *Router) stopTask(w http.ResponseWriter, r *http.Request) {
 
 func (s *Router) projectReport(w http.ResponseWriter, r *http.Request) {
 	user := r.Context().Value(ContextUser).(*data.User)
+	println(user.Username)
 	projects, err := s.ps.GetProjects(user.Id)
 	if err != nil {
 		ServerErrorResponse(w, r, err)
