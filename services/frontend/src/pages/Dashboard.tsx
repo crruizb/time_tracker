@@ -1,80 +1,82 @@
-import React, { useEffect, useState } from "react";
+import { useProjects } from "@/hooks/useProjects";
+import { Navigate, useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
+import { ProjectsList } from "@/components/dashboard/ProjectsList";
+import { useState } from "react";
+import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, Plus } from "lucide-react";
+import { TasksList } from "@/components/dashboard/TasksList";
+import { CreateProjectDialog } from "@/components/dashboard/CreateProjectDialog";
+import { CreateTaskDialog } from "@/components/dashboard/CreateTaskDialog";
 
-// Define the structure of the response data
-interface Task {
-  id: string;
-  name: string;
-  description: string;
-  username: string | null;
-  startedAt: string | null;
-  finishedAt: string | null;
-}
+const Dashboard: React.FC = () => {
+  const username = Cookies.get("username");
+  if (username === undefined) {
+    return <Navigate to="/" />;
+  }
 
-interface Project {
-  id: string;
-  name: string;
-  description: string;
-  tasks: Task[];
-}
+  const navigate = useNavigate();
+  const [isProjectDialogOpen, setIsProjectDialogOpen] = useState(false);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(
+    null
+  );
+  const [isTaskDialogOpen, setIsTaskDialogOpen] = useState(false);
 
-interface ApiResponse {
-  report: Project[];
-}
-
-const FetchDataComponent: React.FC = () => {
-  // State to store the fetched data and loading/error states
-  const [data, setData] = useState<ApiResponse | null>(null);
-  console.log(data?.report);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("http://localhost:8080/api/projects", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include", // If you need to send cookies with the request
-        });
-
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-
-        // Parse the JSON response
-        const result: ApiResponse = await response.json();
-        console.log(result);
-        setData(result); // Set the data in the state
-      } catch (error) {
-        setError("There was a problem with the fetch operation");
-        console.error("Error:", error);
-      } finally {
-        setLoading(false); // Set loading to false after the request is done
-      }
-    };
-
-    fetchData();
-  }, []); // Empty dependency array, so it only runs on mount
-
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>{error}</div>;
+  const { isLoading, isError, error, projects } = useProjects();
+  if (isLoading) return <div>Loading...</div>;
+  if (isError) return <div>{error?.message}</div>;
 
   return (
-    <div>
-      <h1>Fetched Data:</h1>
-      {data?.report.map((p) => {
-        console.log(p);
-        return (
-          <div key={p.id}>
-            <h1>Project ID: {p.id}</h1>
-            <p>Project Name: {p.name}</p>
-          </div>
-        );
-      })}
-    </div>
+    <DashboardLayout>
+      <div className="flex justify-between items-center mb-8">
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl font-bold">Dashboard</h1>
+        </div>
+        <div className="flex gap-2">
+          <Button onClick={() => setIsProjectDialogOpen(true)} size="sm">
+            <Plus className="h-4 w-4 mr-1" />
+            New Project
+          </Button>
+          <Button
+            onClick={() => setIsTaskDialogOpen(true)}
+            size="sm"
+            variant="outline"
+            disabled={!selectedProjectId}
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            New Task
+          </Button>
+        </div>
+      </div>
+
+      <div>
+        <ProjectsList
+          onSelectProject={(id) => setSelectedProjectId(id)}
+          selectedProjectId={selectedProjectId}
+          projects={projects}
+          isLoading={isLoading}
+        />
+      </div>
+
+      {selectedProjectId && (
+        <TasksList
+          tasks={projects.filter((p) => p.id === selectedProjectId)[0].tasks}
+        />
+      )}
+
+      <CreateProjectDialog
+        isOpen={isProjectDialogOpen}
+        onClose={() => setIsProjectDialogOpen(false)}
+      />
+
+      <CreateTaskDialog
+        isOpen={isTaskDialogOpen}
+        onClose={() => setIsTaskDialogOpen(false)}
+        projectId={selectedProjectId}
+      />
+    </DashboardLayout>
   );
 };
 
-export default FetchDataComponent;
+export default Dashboard;
